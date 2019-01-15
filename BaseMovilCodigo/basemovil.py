@@ -1,91 +1,85 @@
+"""MIT License
+
+Copyright (c) 2019 sasilva1998
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE."""
+
 import machine
 from time import sleep,sleep_ms
+import dcmotor
 
 #definicion de pines
 #sensor PIR
-sens=machine.Pin(1, machine.Pin.IN)
+sens=machine.Pin(13, machine.Pin.IN)
 
 #sensores IR
-iri=machine.Pin(5,machine.Pin.IN, machine.Pin.PULL_UP)
-ird=machine.Pin(4,machine.Pin.IN, machine.Pin.PULL_UP)
+ird=machine.Pin(5,machine.Pin.IN, machine.Pin.PULL_UP)
+iri=machine.Pin(4,machine.Pin.IN, machine.Pin.PULL_UP)
 
 #motores
 #izquierdo
-motai=machine.Pin(0,machine.Pin.OUT)
-motad=machine.Pin(2,machine.Pin.OUT)
+motorleft=DCMotor(0,2)
 #derecho
-motbi=machine.Pin(14,machine.Pin.OUT)
-motbd=machine.Pin(12,machine.Pin.OUT)
+motorright=DCMotor(14,12)
 
 def derecha():
-    motai.value(1)
-    moad.value(0)
-
-    motbi.value(0)
-    motbd.value(0)
-    sleep_ms(50)
+    motorleft.forward()
+    motorright.stop()
     
 def izquierda():
-    motai.value(0)
-    moad.value(0)
-
-    motbi.value(1)
-    motbd.value(0)
-    sleep_ms(50)
-
-def recto():
-    def derecha():
-    motai.value(1)
-    moad.value(0)
-
-    motbi.value(1)
-    motbd.value(0)
-    sleep_ms(50)
+    motorleft.stop()
+    motorright.forward()
 
 def parar():
-    motai.value(0)
-    moad.value(0)
-
-    motbi.value(0)
-    motbd.value(0)
+    motorright.stop()
+    motorleft.stop()
 
 def enmarcha():
-    while not iri.value() and not ird.value():
+    while iri.value()==0 or ird.value()==0:
         if iri.value():
             derecha()
-        elif ird.value():
+        if ird.value():
             izquierda()
-        else:
-            recto();
     parar()
+
     while not sens.value():
         pass
-    motai.value(1)
-    moad.value(0)
 
-    motbi.value(0)
-    motbd.value(1)
+    motorright.forward()
+    motorleft.backwards()
     sleep(2)
+    motorright.stop()
+    motorleft.stop()
 
-    while not iri.value() and not ird.value():
+    while iri.value()==0 or ird.value()==0:
         if iri.value():
             derecha()
-        elif ird.value():
+        if ird.value():
             izquierda()
-        else:
-            recto();
     parar()
-    motai.value(1)
-    moad.value(0)
-
-    motbi.value(0)
-    motbd.value(1)
+    
+    motorright.forward()
+    motorleft.backwards()
     sleep(2)
-    parar()
+    motorright.stop()
+    motorleft.stop()
+    
 while True:
     if sens.value():
         enmarcha()
-        
-
-
-
